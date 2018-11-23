@@ -1,0 +1,104 @@
+"""
+Project for Week 3 of "Python Data Analysis".
+Read and write CSV files using a dictionary of dictionaries.
+
+Be sure to read the project description page for further information
+about the expected behavior of the program.
+"""
+
+import csv
+
+def read_csv_fieldnames(filename, separator, quote):
+    """
+    Inputs:
+      filename  - name of CSV file
+      separator - character that separates fields
+      quote     - character used to optionally quote fields
+    Ouput:
+      A list of strings corresponding to the field names in
+      the given CSV file.
+    """
+    with open(filename, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter = separator, quotechar = quote)
+        for header in reader:
+            return header
+
+#print(read_csv_fieldnames())
+
+def read_csv_as_list_dict(filename, separator, quote):
+    """
+    Inputs:
+      filename  - name of CSV file
+      separator - character that separates fields
+      quote     - character used to optionally quote fields
+    Output:
+      Returns a list of dictionaries where each item in the list
+      corresponds to a row in the CSV file.  The dictionaries in the
+      list map the field names to the field values for that row.
+    """
+    dictlist = []
+    with open(filename, newline = '') as csvfile:
+        reader = csv.reader(csvfile, delimiter = separator, quotechar = quote)
+        header = None
+        for row in reader:
+            if header is None:
+                header = row
+                continue
+            data = {}
+            for index in range(len(row)):
+                key = header[index]
+                value = row[index]
+                data[key] = value
+            dictlist.append(data)
+    return dictlist
+
+#print(read_csv_as_list_dict())
+def read_csv_as_nested_dict(filename, keyfield, separator, quote):
+    """
+    Inputs:
+      filename  - name of CSV file
+      keyfield  - field to use as key for rows
+      separator - character that separates fields
+      quote     - character used to optionally quote fields
+    Output:
+      Returns a dictionary of dictionaries where the outer dictionary
+      maps the value in the key_field to the corresponding row in the
+      CSV file.  The inner dictionaries map the field names to the
+      field values for that row.
+    """
+    diction = {}
+    dictlist = read_csv_as_list_dict(filename, separator, quote)
+    for data in dictlist:
+        key = data[keyfield]
+        diction[key] = data
+    return diction
+
+#print(read_csv_as_nested_dict())
+
+def write_csv_from_list_dict(filename, table, fieldnames, separator, quote):
+    """
+    Inputs:
+      filename   - name of CSV file
+      table      - list of dictionaries containing the table to write
+      fieldnames - list of strings corresponding to the field names in order
+      separator  - character that separates fields
+      quote      - character used to optionally quote fields
+    Output:
+      Writes the table to a CSV file with the name filename, using the
+      given fieldnames.  The CSV file should use the given separator and
+      quote characters.  All non-numeric fields will be quoted.
+    """
+    #dialect = csv.Dialect()
+    #dialect.delimiter = separator
+    #dialect.quotechar = quote
+    with open(filename, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames = fieldnames, delimiter = separator, quotechar = quote, quoting = csv.QUOTE_NONNUMERIC)
+        writer.writeheader()
+        for row in table:
+            writer.writerow(row)
+
+write_csv_from_list_dict('output1.csv', [{'d': 13, 'c': 12, 'a': 10, 'b': 11, 'e': 14},
+ {'d': 23, 'c': 22, 'a': 20, 'b': 21, 'e': 24}, 
+ {'d': 33, 'c': 32, 'a': 30, 'b': 31, 'e': 34},
+ {'d': 43, 'c': 42, 'a': 40, 'b': 41, 'e': 44}],
+ ['a', 'b', 'c', 'd', 'e'], ',', '"') 
